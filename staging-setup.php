@@ -255,7 +255,7 @@ function dc_staging_disable_order_auto_sync_to_erp(){
 
 	// if success
 	$b4e_settings = get_option('b4e_settings');
-	if( $b4e_settings['orders_options_status_trigger'] == 'no' ){
+	if( $b4e_settings['orders_options_status_trigger'] == 'off' ){
 		echo 'Order auto sync to ERP has been disabled!';
 	}
 
