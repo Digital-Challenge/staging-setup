@@ -7,6 +7,7 @@ ini_set('log_errors', '0');
 error_reporting(0);
 
 $functions = [
+	'dc_staging_add_staging_prefix_to_site_title',
 	'dc_staging_enable_coming_soon',
 	'dc_staging_enable_no_index',
 	'dc_staging_enable_debug_mode',
@@ -35,6 +36,24 @@ foreach ($functions as $function) {
 	echo "-> WP: $echo";
 	echo "\n";
 	echo "\n";
+}
+
+function dc_staging_add_staging_prefix_to_site_title(){
+	$site_title = get_option('blogname');
+
+	if( strpos($site_title, 'STAGING') === 0 ){
+		echo 'Site name already has the STAGING prefix.';
+		return;
+	}
+
+	update_option('blogname', "STAGING $site_title");
+
+	if( strpos(get_option('blogname'), 'STAGING') === 0 ){
+		echo 'Site name now has the STAGING prefix!';
+	}else{
+		echo 'FAIL: Could not add STAGING prefix to site name.';
+	}
+
 }
 
 function dc_staging_enable_coming_soon(){
