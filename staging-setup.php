@@ -14,7 +14,8 @@ $functions = [
 	'dc_staging_disable_custom_admin_monitor',
 	'dc_staging_disable_order_auto_sync_to_erp',
 	'dc_staging_change_admin_email',
-	'dc_staging_change_woo_email_recipients',
+	'dc_staging_change_wc_email_recipients',
+	'dc_staging_install_mu_plugin_to_restrict_outgoing_emails',
 ];
 
 
@@ -252,7 +253,7 @@ function dc_staging_change_admin_email(){
 	}
 }
 
-function dc_staging_change_woo_email_recipients() {
+function dc_staging_change_wc_email_recipients() {
 	global $wpdb;
 
 	$admin_email = get_option('admin_email');
@@ -298,5 +299,78 @@ function dc_staging_change_woo_email_recipients() {
 		echo "All the other woo emails that accepts recipient has been changed to $admin_email";
 	}else{
 		echo "All the woo emails that accepts recipient has been changed to $admin_email";
+	}
+}
+
+function dc_staging_install_mu_plugin_to_restrict_outgoing_emails(){
+	$plugin_code = <<<'PHP'
+<?php
+/**
+ * Plugin Name: DC Staging Email Restriction
+ * Description: Allow outgoing emails only to @dicha.gr and dichadev@gmail.com (including aliases).
+ */
+
+add_filter('wp_mail', 'dc_staging_remove_outside_dicha_email_addresses', 999);
+function dc_staging_remove_outside_dicha_email_addresses( $mail_data ){
+    $to = !is_array( $mail_data['to'] ) ? explode(',', $mail_data['to'] ) : $mail_data['to'];
+	$mail_data['to'] = array_filter( $to, 'dc_staging_is_email_address_allowed' );
+	return $mail_data;
+}
+
+add_filter('pre_wp_mail', 'dc_staging_restrict_outgoing_emails', 999, 2);
+function dc_staging_restrict_outgoing_emails( $default_value, $mail_data ){
+	if ( empty($mail_data['to']) ) {
+		do_action('wp_mail_failed', new WP_Error('wp_mail_failed','Outgoing emails are restricted. Only @dicha.gr addresses and dichadev@gmail.com (including its aliases) are allowed.', $mail_data));
+		return false;
+	}
+
+	return $default_value;
+}
+
+function dc_staging_is_email_address_allowed( $email_address ) {
+	$email_address = strtolower(trim($email_address));
+
+	// Allow *@dicha.gr using preg_match
+	if ( preg_match('/@dicha\.gr$/', $email_address) ) {
+		return true;
+	}
+
+	if ( preg_match('/^(.*?)@(gmail\.com|googlemail\.com)$/', $email_address, $matches) ) {
+		$local_part = $matches[1];
+
+		// Remove dots & +anything (because they are alias)
+		$local_part = str_replace('.', '', $local_part);
+		$local_part = preg_replace('/\+.*/', '', $local_part);
+
+		if ( $local_part === 'dichadev' ) { // only allow aliases of dichadev@gmail.com
+			return true;
+		}
+	}
+
+	return false;
+}
+
+add_action('admin_notices', 'dc_staging_email_restriction_notice');
+function dc_staging_email_restriction_notice() {
+	?>
+	<div class="notice notice-info">
+		<p><strong>Outgoing emails are restricted.</strong> Only <code>@dicha.gr</code> addresses and <code>dichadev@gmail.com</code> (including its aliases) are allowed.</p>
+	</div>
+	<?php
+}
+PHP;
+
+	wp_mkdir_p(WPMU_PLUGIN_DIR);
+
+	// Path to MU-Plugin
+	$mu_plugin_path = trailingslashit(WPMU_PLUGIN_DIR) . 'restrict-outgoing-emails.php';
+
+	// Write file
+	$data_written = file_put_contents($mu_plugin_path, $plugin_code);
+
+	if($data_written){
+		echo 'MU Plugin that restricts outgoing emails has been installed! Only @dicha.gr addresses and dichadev@gmail.com (including its aliases) are allowed.';
+	}else{
+		echo 'FAIL: Could not install MU plugin that restricts outgoing emails!';
 	}
 }
