@@ -6,6 +6,41 @@ ini_set('display_errors', '0');
 ini_set('log_errors', '0');
 error_reporting(0);
 
+// Extracts the main domain (e.g. example.com, example.co.uk)
+function extract_domain($domain){
+    // Regex to capture the root domain at the end of the string
+    if (preg_match("/(?P<domain>[a-z0-9][a-z0-9\-]{1,63}\.[a-z\.]{2,})$/i", $domain, $matches)) {
+        return $matches['domain'];
+    }
+
+    // Fallback: return the input if no match found
+    return $domain;
+}
+
+function extract_subdomains($domain){
+    $original = $domain;
+    $domain = extract_domain($original);
+
+    // Get everything before the main domain (if exists)
+    return rtrim(strstr($original, $domain, true), '.');
+}
+
+// return if you are running this script from live site!
+
+$host = parse_url( get_option('siteurl'), PHP_URL_HOST );
+
+$subdomains = extract_subdomains($host);
+
+echo 'site: '.$subdomains;
+
+// We don't want the code to run if is LIVE site (aka if is there is no subdomain or if it is 'www')
+if ( !$subdomains || $subdomains === 'www' ) {
+	echo 'You cannot run this script in LIVE site!';
+    return;
+}
+
+
+
 $functions = [
 	'dc_staging_add_staging_prefix_to_site_title',
 	'dc_staging_enable_coming_soon',
