@@ -30,7 +30,7 @@ $subdomains = extract_subdomains($host);
 
 // We don't want the code to run if is LIVE site (aka if is there is no subdomain or if it is 'www')
 if ( !$subdomains || $subdomains === 'www' ) {
-	echo 'You cannot run this script in LIVE site!';
+	echo 'SOS: You cannot run this script in LIVE site!';
 	echo "\n";
     return;
 }
