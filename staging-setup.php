@@ -103,8 +103,9 @@ function dc_staging_enable_coming_soon(){
 
 	update_option( 'woocommerce_coming_soon', 'yes' );
 	update_option( 'woocommerce_store_pages_only', 'no' );
+	update_option( 'woocommerce_feature_site_visibility_badge_enabled', 'yes' );
 
-	if ( get_option( 'woocommerce_coming_soon') == 'yes' && get_option( 'woocommerce_store_pages_only') == 'no' ) {
+	if ( get_option( 'woocommerce_coming_soon') == 'yes' && get_option( 'woocommerce_store_pages_only') == 'no' && get_option( 'woocommerce_feature_site_visibility_badge_enabled') == 'yes' ) {
 		echo "Coming Soon initialized successfully";
 	} else {
 		echo "FAIL: Coming Soon not enabled. Use plugin or htaccess for this scope";
