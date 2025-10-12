@@ -33,9 +33,12 @@ foreach ($functions as $function) {
 	}
 
 	$echo = ob_get_clean();
-	echo "-> WP: $echo";
-	echo "\n";
-	echo "\n";
+
+	if( trim($echo) ){
+		echo "-> WP: $echo";
+		echo "\n";
+		echo "\n";
+	}
 }
 
 function dc_staging_add_staging_prefix_to_site_title(){
