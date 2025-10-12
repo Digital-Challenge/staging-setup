@@ -25,17 +25,13 @@ function extract_subdomains($domain){
     return rtrim(strstr($original, $domain, true), '.');
 }
 
-// return if you are running this script from live site!
-
 $host = parse_url( get_option('siteurl'), PHP_URL_HOST );
-
 $subdomains = extract_subdomains($host);
-
-echo 'site: '.$subdomains;
 
 // We don't want the code to run if is LIVE site (aka if is there is no subdomain or if it is 'www')
 if ( !$subdomains || $subdomains === 'www' ) {
 	echo 'You cannot run this script in LIVE site!';
+	echo "\n";
     return;
 }
 
