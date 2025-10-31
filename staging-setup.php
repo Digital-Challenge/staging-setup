@@ -32,6 +32,7 @@ $subdomains = extract_subdomains($host);
 if ( !$subdomains || $subdomains === 'www' ) {
 	echo 'SOS: You cannot run this script in LIVE site!';
 	echo "\n";
+	var_dump($subdomains);
     return;
 }
 
